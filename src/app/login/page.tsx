@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +15,40 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-export const metadata = {
-  title: "Login",
-};
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { error: resError } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (resError) {
+        setError(resError.message || "Invalid credentials");
+      } else {
+        router.push("/admin");
+        router.refresh();
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-6 py-12">
       <div className="w-full max-w-md">
@@ -31,11 +63,16 @@ export default function LoginPage() {
           <CardHeader>
             <CardTitle>Login</CardTitle>
             <CardDescription>
-              Static starter form with no authentication connected.
+              Enter your admin credentials to access the dashboard.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-5">
+              {error && (
+                <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -44,6 +81,9 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -54,10 +94,13 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
-              <Button className="w-full" type="button">
-                Continue
+              <Button className="w-full" type="submit" disabled={loading}>
+                {loading ? "Logging in..." : "Continue"}
               </Button>
             </form>
           </CardContent>
@@ -66,3 +109,4 @@ export default function LoginPage() {
     </main>
   );
 }
+
