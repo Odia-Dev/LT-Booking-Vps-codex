@@ -23,3 +23,53 @@ Never generate dealership features unless explicitly requested.
 
 Current priority:
 Authentication System.
+
+## Git Safety Rule
+
+Before any git operation:
+
+* Never automatically push code to GitHub.
+* Never automatically commit code.
+* Never automatically merge branches.
+* Never automatically deploy to VPS.
+
+After completing a task:
+
+1. Run verification:
+
+   * npm run lint
+   * npm run build
+
+2. Verify actual files exist on disk.
+
+3. Output:
+   PASS / FAIL for:
+
+   * Build
+   * Lint
+   * File creation
+   * Route creation
+   * Database changes
+
+4. Show all changed files.
+
+5. Ask for explicit approval:
+
+   "Changes verified successfully.
+
+   Files changed:
+   [list files]
+
+   Build: PASS/FAIL
+   Lint: PASS/FAIL
+
+   Do you want me to:
+   A) Stop here
+   B) Commit locally only
+   C) Commit and push to GitHub"
+
+6. Wait for user approval before any git commit or push.
+
+Never push automatically.
+Never deploy automatically.
+Always require explicit approval.
