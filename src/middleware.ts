@@ -1,21 +1,12 @@
+import { auth } from "@/lib/auth";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  let session = null;
-  try {
-    const response = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
-      headers: {
-        cookie: request.headers.get("cookie") || "",
-      },
-    });
-    if (response.ok) {
-      session = await response.json();
-    }
-  } catch {
-    // Fail safe or log
-  }
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
   if (path.startsWith("/admin")) {
     if (!session) {
@@ -33,5 +24,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  runtime: "nodejs",
   matcher: ["/admin/:path*", "/login"],
 };

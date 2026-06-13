@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
+type CustomNextConfig = NextConfig & {
+  experimental?: {
+    nodeMiddleware?: boolean;
+  };
+};
+
+const nextConfig: CustomNextConfig = {
+  experimental: {
+    nodeMiddleware: true,
+  },
 };
 
 export default nextConfig;
